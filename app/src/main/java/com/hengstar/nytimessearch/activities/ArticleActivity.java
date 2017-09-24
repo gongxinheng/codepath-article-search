@@ -15,6 +15,8 @@ public class ArticleActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_article);
+        //Toolbar toolbar = findViewById(R.id.too)
+        //setSupportActionBar(toolbar);
 
         Article article = (Article) getIntent().getSerializableExtra(Constants.IntentParams.ARTICLE);
 

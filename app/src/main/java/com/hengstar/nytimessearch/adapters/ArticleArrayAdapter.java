@@ -1,66 +1,94 @@
 package com.hengstar.nytimessearch.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.hengstar.nytimessearch.R;
+import com.hengstar.nytimessearch.activities.ArticleActivity;
 import com.hengstar.nytimessearch.models.Article;
+import com.hengstar.nytimessearch.utils.Constants;
 import com.squareup.picasso.Picasso;
 
-import java.util.List;
+import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class ArticleArrayAdapter extends ArrayAdapter<Article> {
+public class ArticleArrayAdapter extends RecyclerView.Adapter<ArticleArrayAdapter.ViewHolder> {
 
-    static class ViewHolder {
+    static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         @BindView(R.id.ivImage) ImageView ivImage;
         @BindView(R.id.tvTitle) TextView tvTitle;
 
-        public ViewHolder(View view) {
+        public GridItemClickListener itemClickListener;
+
+        @Override
+        public void onClick(View view) {
+            itemClickListener.onItemClick(view, getLayoutPosition());
+        }
+
+        public interface GridItemClickListener {
+            void onItemClick(View v, int position);
+        }
+
+        public ViewHolder(View view, GridItemClickListener itemClickListener) {
+            super(view);
             ButterKnife.bind(this, view);
+            this.itemClickListener = itemClickListener;
+            view.setOnClickListener(this);
         }
     }
 
-    public ArticleArrayAdapter(@NonNull Context context, @NonNull List<Article> objects) {
-        super(context, R.layout.item_article_result, objects);
+    private ArrayList<Article> articles;
+    private Context context;
+
+    public ArticleArrayAdapter(@NonNull Context context, @NonNull ArrayList<Article> articles) {
+        this.context = context;
+        this.articles = articles;
     }
 
-    @NonNull
     @Override
-    public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        Context context = parent.getContext();
+        LayoutInflater inflater = LayoutInflater.from(context);
+
+        // Inflate the custom layout
+        View articleView = inflater.inflate(R.layout.item_article_result, parent, false);
+
+        // Return a new holder instance
+        ViewHolder viewHolder = new ViewHolder(articleView, new ViewHolder.GridItemClickListener() {
+            @Override
+            public void onItemClick(View v, int position) {
+                // create an intent to display the article
+                Intent i = new Intent(v.getContext(), ArticleActivity.class);
+                // get the article to display
+                Article article = articles.get(position);
+                // pass in that article into intent
+                i.putExtra(Constants.IntentParams.ARTICLE, article);
+                // launch the activity
+                v.getContext().startActivity(i);
+            }
+        });
+        return viewHolder;
+    }
+
+    @Override
+    public void onBindViewHolder(ViewHolder holder, int position) {
         // get the data item for position
-        Article article = this.getItem(position);
+        Article article = articles.get(position);
 
-        // view lookup cache stored in tag
-        ViewHolder viewHolder;
-
-        // check to see if existing view being reused/recycled
-        // not using a recycled view -> inflate the layout
-        if (convertView == null) {
-            LayoutInflater inflater = LayoutInflater.from(getContext());
-            convertView = inflater.inflate(R.layout.item_article_result, parent, false);
-            viewHolder = new ViewHolder(convertView);
-            // Cache the viewHolder object inside the fresh view
-            convertView.setTag(viewHolder);
-        } else {
-            viewHolder = (ViewHolder) convertView.getTag();
-        }
-
-        final Context context = convertView.getContext();
 
         // clear out recycled image from convertView from last time
-        viewHolder.ivImage.setImageResource(0);
-        viewHolder.tvTitle.setText(article.getHeadline());
+        holder.ivImage.setImageResource(0);
+        holder.tvTitle.setText(article.getHeadline());
 
         // populate the thumnail image
         // remove download the image in the background
@@ -68,9 +96,12 @@ public class ArticleArrayAdapter extends ArrayAdapter<Article> {
         String thumnail = article.getThumbNail();
 
         if (!TextUtils.isEmpty(thumnail)) {
-            Picasso.with(getContext()).load(thumnail).into(viewHolder.ivImage);
+            Picasso.with(context).load(thumnail).into(holder.ivImage);
         }
+    }
 
-        return convertView;
+    @Override
+    public int getItemCount() {
+        return articles.size();
     }
 }
