@@ -36,6 +36,7 @@ public class Constants {
 
     public static class IntentParams {
         public static final String ARTICLE = "article";
+        public static final String QUERY = "query";
     }
 
     public static class Tags {

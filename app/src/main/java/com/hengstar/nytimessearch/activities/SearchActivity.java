@@ -1,16 +1,15 @@
 package com.hengstar.nytimessearch.activities;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.Toast;
 
 import com.hengstar.nytimessearch.R;
@@ -40,8 +39,6 @@ import cz.msebera.android.httpclient.Header;
 
 public class SearchActivity extends AppCompatActivity implements FilterFragment.FilterOptionsDialogListener {
 
-    @BindView(R.id.etQuery) EditText etQuery;
-    @BindView(R.id.btnSearch) Button btnSearch;
     @BindView(R.id.rvArticles) RecyclerView rvArticles;
 
     private ArrayList<Article> articles;
@@ -50,6 +47,7 @@ public class SearchActivity extends AppCompatActivity implements FilterFragment.
     private EndlessRecyclerViewScrollListener scrollListener;
     // stored filter options
     private FilterOptions filterOptions;
+    private String query;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,28 +77,48 @@ public class SearchActivity extends AppCompatActivity implements FilterFragment.
         rvArticles.addOnScrollListener(scrollListener);
     }
 
-    public void onArticleSearch(View view) {
-        reset();
-        executeSearch(0, null);
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_article_list, menu);
+        MenuItem searchItem = menu.findItem(R.id.action_search);
+        final SearchView searchView = (SearchView) searchItem.getActionView();
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                reset();
+                // perform query here
+                executeSearch(0, query, null);
+                // workaround to avoid issues with some emulators and keyboard devices firing twice if a keyboard enter is used
+                // see https://code.google.com/p/android/issues/detail?id=24599
+                searchView.clearFocus();
+
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        });
+        return super.onCreateOptionsMenu(menu);
     }
 
     public void onArticleFilter(View view) {
         FragmentManager fm = getSupportFragmentManager();
-        FilterFragment filterFragment = FilterFragment.newInstance();
+        FilterFragment filterFragment = FilterFragment.newInstance(query);
         filterFragment.show(fm, Constants.Tags.FILTER_FRAGMENT);
     }
 
     @Override
-    public void onFilter(FilterOptions filterOptions) {
+    public void onFilter(String query, FilterOptions filterOptions) {
         reset();
-        executeSearch(0, filterOptions);
+        executeSearch(0, query, filterOptions);
     }
 
-    private void executeSearch(int page, @Nullable final FilterOptions filterOptions) {
-
-        InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(etQuery.getWindowToken(), 0);
-        etQuery.clearFocus();
+    private void executeSearch(int page, String query, @Nullable final FilterOptions filterOptions) {
+        // Save query string
+        this.query = query;
         if (!Utils.isNetworkAvailable(this)) {
             Toast.makeText(this, getResources().getString(R.string.err_msg_internet_not_available), Toast.LENGTH_LONG).show();
             return;
@@ -109,7 +127,6 @@ public class SearchActivity extends AppCompatActivity implements FilterFragment.
         if (filterOptions != null) {
             this.filterOptions = filterOptions;
         }
-        String query = etQuery.getText().toString();
 
         //Toast.makeText(this, "Searching for" + query, Toast.LENGTH_LONG).show();
         AsyncHttpClient client = new AsyncHttpClient();
@@ -160,7 +177,7 @@ public class SearchActivity extends AppCompatActivity implements FilterFragment.
         //  --> Deserialize and construct new model objects from the API response
         //  --> Append the new data objects to the existing set of items inside the array of items
         //  --> Notify the adapter of the new items made with `notifyItemRangeInserted()`
-        executeSearch(offset, null);
+        executeSearch(offset, query, null);
     }
 
     // Reset all views and clear items

@@ -4,6 +4,7 @@ package com.hengstar.nytimessearch.fragments;
 import android.app.DatePickerDialog;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -38,6 +39,8 @@ public class FilterFragment extends DialogFragment
                                        EditText.OnClickListener {
 
     private Unbinder unbinder;
+    // Store query to pass back
+    private String query;
 
     DatePickerFragment datePickerFragment;
 
@@ -52,9 +55,17 @@ public class FilterFragment extends DialogFragment
         // Required empty public constructor
     }
 
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+            query = getArguments().getString(Constants.IntentParams.QUERY);
+        }
+    }
+
     // Defines the listener interface with a method passing back data result.
     public interface FilterOptionsDialogListener {
-        void onFilter(FilterOptions filterOptions);
+        void onFilter(String query, FilterOptions filterOptions);
     }
 
     /**
@@ -63,8 +74,12 @@ public class FilterFragment extends DialogFragment
      *
      * @return A new instance of fragment FilterFragment.
      */
-    public static FilterFragment newInstance() {
-        return new FilterFragment();
+    public static FilterFragment newInstance(@NonNull String query) {
+        FilterFragment fragment = new FilterFragment();
+        Bundle args = new Bundle();
+        args.putString(Constants.IntentParams.QUERY, query);
+        fragment.setArguments(args);
+        return fragment;
     }
 
     @Override
@@ -137,7 +152,7 @@ public class FilterFragment extends DialogFragment
         filterOptions.setNewsDeskValue(FilterOptions.NewsDeskValue.FASHION_STYLE, cbFashionStyle.isChecked());
         filterOptions.setNewsDeskValue(FilterOptions.NewsDeskValue.SPORTS, cbSports.isChecked());
 
-        ((FilterOptionsDialogListener) getActivity()).onFilter(filterOptions);
+        ((FilterOptionsDialogListener) getActivity()).onFilter(query, filterOptions);
         dismiss();
     }
 }
