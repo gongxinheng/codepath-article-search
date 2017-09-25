@@ -14,4 +14,8 @@
 
     <string name="oldest">Oldest</string>
     <string name="newest">Newest</string>
+
+    <string name="err_msg_internet_not_available">
+        Internet is not available
+    </string>
 </resources>

@@ -1,5 +1,8 @@
 package com.hengstar.nytimessearch.utils;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.support.annotation.NonNull;
 
 import com.hengstar.nytimessearch.models.FilterOptions;
@@ -34,5 +37,12 @@ public class Utils {
         sb.append(')');
 
         return sb.toString();
+    }
+
+    public static Boolean isNetworkAvailable(@NonNull final Context context) {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnectedOrConnecting();
     }
 }

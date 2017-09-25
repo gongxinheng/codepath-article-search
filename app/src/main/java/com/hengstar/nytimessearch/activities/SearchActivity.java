@@ -1,5 +1,6 @@
 package com.hengstar.nytimessearch.activities;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
@@ -7,8 +8,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.hengstar.nytimessearch.R;
 import com.hengstar.nytimessearch.adapters.ArticleArrayAdapter;
@@ -55,7 +58,6 @@ public class SearchActivity extends AppCompatActivity implements FilterFragment.
         ButterKnife.bind(this);
         articles = new ArrayList<>();
         adapter = new ArticleArrayAdapter(this, articles);
-
         // Setup layout manager for items with orientation
         StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(
                 Constants.SEARCH_RESULT_COLUMN_NUM, StaggeredGridLayoutManager.VERTICAL);
@@ -95,6 +97,14 @@ public class SearchActivity extends AppCompatActivity implements FilterFragment.
     }
 
     private void executeSearch(int page, @Nullable final FilterOptions filterOptions) {
+
+        InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(etQuery.getWindowToken(), 0);
+        etQuery.clearFocus();
+        if (!Utils.isNetworkAvailable(this)) {
+            Toast.makeText(this, getResources().getString(R.string.err_msg_internet_not_available), Toast.LENGTH_LONG).show();
+            return;
+        }
         // save filter options
         if (filterOptions != null) {
             this.filterOptions = filterOptions;
