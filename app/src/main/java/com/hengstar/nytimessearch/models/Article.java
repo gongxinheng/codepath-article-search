@@ -5,27 +5,18 @@ import com.hengstar.nytimessearch.utils.Constants;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.parceler.Parcel;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Article implements Serializable {
+@Parcel
+public class Article {
 
-    public String getWebUrl() {
-        return webUrl;
-    }
+    public String webUrl;
+    public String headline;
+    public String thumbNail;
 
-    public String getHeadline() {
-        return headline;
-    }
-
-    public String getThumbNail() {
-        return thumbNail;
-    }
-
-    private String webUrl;
-    private String headline;
-    private String thumbNail;
+    public Article() {}
 
     public Article(JSONObject jsonObject) {
         try {

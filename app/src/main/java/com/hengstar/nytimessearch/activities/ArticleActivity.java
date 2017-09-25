@@ -1,24 +1,30 @@
 package com.hengstar.nytimessearch.activities;
 
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import com.hengstar.nytimessearch.R;
+import com.hengstar.nytimessearch.databinding.ActivityArticleBinding;
 import com.hengstar.nytimessearch.models.Article;
 import com.hengstar.nytimessearch.utils.Constants;
 
+import org.parceler.Parcels;
+
 public class ArticleActivity extends AppCompatActivity {
+
+    private ActivityArticleBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_article);
         //Toolbar toolbar = findViewById(R.id.too)
         //setSupportActionBar(toolbar);
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_article);
 
-        Article article = (Article) getIntent().getSerializableExtra(Constants.IntentParams.ARTICLE);
+        Article article = Parcels.unwrap(getIntent().getParcelableExtra(Constants.IntentParams.ARTICLE));
 
         WebView webView = (WebView) findViewById(R.id.wvArticle);
 
@@ -29,6 +35,6 @@ public class ArticleActivity extends AppCompatActivity {
                 return true;
             }
         });
-        webView.loadUrl(article.getWebUrl());
+        webView.loadUrl(article.webUrl);
     }
 }

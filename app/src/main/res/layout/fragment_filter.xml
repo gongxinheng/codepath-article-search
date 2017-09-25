@@ -92,5 +92,4 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="@dimen/default_margin"
         android:onClick="onSaveFilter" />
-
 </RelativeLayout>
