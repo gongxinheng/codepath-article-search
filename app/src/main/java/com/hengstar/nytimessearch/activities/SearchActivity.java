@@ -4,8 +4,8 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -57,7 +57,8 @@ public class SearchActivity extends AppCompatActivity implements FilterFragment.
         adapter = new ArticleArrayAdapter(this, articles);
 
         // Setup layout manager for items with orientation
-        GridLayoutManager layoutManager = new GridLayoutManager(this, Constants.SEARCH_RESULT_COLUMN_NUM);
+        StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(
+                Constants.SEARCH_RESULT_COLUMN_NUM, StaggeredGridLayoutManager.VERTICAL);
         // Optionally customize the position you want to default scroll to
         layoutManager.scrollToPosition(0);
         // Attach layout manager to the RecyclerView
@@ -102,7 +103,6 @@ public class SearchActivity extends AppCompatActivity implements FilterFragment.
 
         //Toast.makeText(this, "Searching for" + query, Toast.LENGTH_LONG).show();
         AsyncHttpClient client = new AsyncHttpClient();
-        String url = "https://api.nytimes.com/svc/search/v2/articlesearch.json";
 
         RequestParams params = new RequestParams();
         params.put(Constants.SearchParams.API_KEY, "f3e1af64791f412c89c24bc440759679");
@@ -127,7 +127,7 @@ public class SearchActivity extends AppCompatActivity implements FilterFragment.
             }
         }
 
-        client.get(url, params, new JsonHttpResponseHandler() {
+        client.get(Constants.NYTIME_API_URL, params, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 JSONArray articleJsonResults;

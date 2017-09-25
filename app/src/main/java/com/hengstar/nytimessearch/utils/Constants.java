@@ -2,7 +2,8 @@ package com.hengstar.nytimessearch.utils;
 
 public class Constants {
 
-    public static final int SEARCH_RESULT_COLUMN_NUM = 4;
+    public static final int SEARCH_RESULT_COLUMN_NUM = 2;
+    public static final String NYTIME_API_URL = "https://api.nytimes.com/svc/search/v2/articlesearch.json";
     public static final String NYTIME_URL_PREFIX = "http://www.nytimes.com/";
     public static final String NEWS_DESK_PREFIX = "news_desk:";
 
